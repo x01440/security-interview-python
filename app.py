@@ -6,13 +6,13 @@ import user
 
 # Security Interview
 #
-# Security Flaws:
-# Guessable Authentication Key
-# Same key for each login
-# Role encoded in query string
-# Config URL exposed for discovery
-# API documentation exposed without key
-# SQL query update without escaping web content
+# Usage
+# Security key in header value "Auth" for API access
+# Use the query string param "role" to specify role for operation.
+#   Valid roles are: admin, editor, user
+#   admin can do all operations
+#   editor can do update and read
+#   user can do read
 
 app = Flask(__name__)
 
@@ -32,10 +32,14 @@ def login():
     else:
         return sample_login.show_login_form()
 
+@app.route('/key', methods=['POST'])
+def generate_key():
+    return auth.create_key
+
 @app.route('/user', methods=['GET', 'POST', 'PUT'])
 def user_handler():
     # Check key and role.
-    auth_key = request.headers['Auth'] if request.headers.has_key('Auth') else None
+    auth_key = extract_auth_key(request)
     if not auth.check_key(auth_key):
         return make_response({RESPONSE_MESSAGE: 'Authentication failed'}, 403)
     user_role = request.args.get('role', '')
@@ -58,6 +62,9 @@ def user_handler():
     else:
         response = make_response({RESPONSE_MESSAGE: 'Method not allowed'}, 405)
         return response
+
+def extract_auth_key(req: request):
+    return req.headers['Auth'] if req.headers.has_key('Auth') else None
 
 def return_forbidden():
     return make_response({RESPONSE_MESSAGE: 'Authentication failed'}, 403)
