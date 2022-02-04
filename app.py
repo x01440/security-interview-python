@@ -1,5 +1,6 @@
-from flask import Flask, request
+from flask import Flask, make_response, request
 
+import auth
 import sample_login
 import user
 
@@ -18,10 +19,11 @@ app = Flask(__name__)
 METHOD_GET: str = 'GET'
 METHOD_POST: str = 'POST'
 METHOD_PUT: str = 'PUT'
+RESPONSE_MESSAGE: str = 'message'
 
 @app.route("/")
 def hello_world():
-    return "<p>Hello, World!</p>"
+    return "<p>Sample User Service</p>"
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -33,6 +35,9 @@ def login():
 @app.route('/user', methods=['GET', 'POST', 'PUT'])
 def user_handler():
     # Check key and role.
+    auth_key = request.headers['Auth'] if request.headers.has_key('Auth') else None
+    if not auth.check_key(auth_key):
+        return make_response({RESPONSE_MESSAGE: "Authentication failed"}, 403)
 
     if request.method == METHOD_GET:
         return user.get_user()
@@ -41,4 +46,5 @@ def user_handler():
     elif request.method == METHOD_PUT:
         return user.update_user
     else:
-        return "<p>Invalid Request</p>"
+        response = make_response({RESPONSE_MESSAGE: "Method not allowed"}, 405)
+        return response
