@@ -23,7 +23,7 @@ RESPONSE_MESSAGE: str = 'message'
 
 @app.route("/")
 def hello_world():
-    return "<p>Sample User Service</p>"
+    return '<p>Sample User Service</p>'
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -37,14 +37,27 @@ def user_handler():
     # Check key and role.
     auth_key = request.headers['Auth'] if request.headers.has_key('Auth') else None
     if not auth.check_key(auth_key):
-        return make_response({RESPONSE_MESSAGE: "Authentication failed"}, 403)
+        return make_response({RESPONSE_MESSAGE: 'Authentication failed'}, 403)
+    user_role = request.args.get('role', '')
 
     if request.method == METHOD_GET:
-        return user.get_user()
+        if auth.check_role(user_role, METHOD_GET):
+            return user.get_user()
+        else:
+            return return_forbidden()
     elif request.method == METHOD_POST:
-        return user.create_user
+        if auth.check_role(user_role, METHOD_GET):
+            return user.create_user()
+        else:
+            return return_forbidden()
     elif request.method == METHOD_PUT:
-        return user.update_user
+        if auth.check_role(user_role, METHOD_GET):
+            return user.update_user()
+        else:
+            return return_forbidden()
     else:
-        response = make_response({RESPONSE_MESSAGE: "Method not allowed"}, 405)
+        response = make_response({RESPONSE_MESSAGE: 'Method not allowed'}, 405)
         return response
+
+def return_forbidden():
+    return make_response({RESPONSE_MESSAGE: 'Authentication failed'}, 403)

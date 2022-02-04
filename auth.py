@@ -1,7 +1,19 @@
+from lib2to3.pgen2.token import OP
+
+
 SECRET_KEY = "123456"
 ROLE_ADMIN = "admin"
 ROLE_EDITOR = "editor"
 ROLE_USER = "user"
+OPERATION_READ = "GET"
+OPERATION_CREATE = "POST"
+OPERATION_UPDATE = "PUT"
+
+AUTHORIZATION_CREDS = {
+    ROLE_ADMIN: [OPERATION_READ, OPERATION_CREATE, OPERATION_UPDATE],
+    ROLE_EDITOR: [OPERATION_READ, OPERATION_UPDATE],
+    ROLE_USER: [OPERATION_READ]
+}
 
 def create_key():
     return SECRET_KEY
@@ -12,12 +24,8 @@ def check_key(candidate_key: str):
     else:
         return False
 
-def check_role(candidate_role: str):
-    if candidate_role == ROLE_ADMIN:
-        return ROLE_ADMIN
-    elif candidate_role == ROLE_EDITOR:
-        return ROLE_EDITOR
-    elif candidate_role == ROLE_USER:
-        return ROLE_USER
+def check_role(candidate_role: str, operation: str):
+    if operation in AUTHORIZATION_CREDS[candidate_role]:
+        return True
     else:
-        return None
+        return False
