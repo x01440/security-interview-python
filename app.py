@@ -41,8 +41,8 @@ def user_handler():
     # Check key and role.
     auth_key = extract_auth_key(request)
     if not auth.check_key(auth_key):
-        return make_response({RESPONSE_MESSAGE: 'Authentication failed'}, 403)
-    user_role = request.args.get('role', '')
+        return return_forbidden()
+    user_role = request.args.get('role', None)
 
     if request.method == METHOD_GET:
         if auth.check_role(user_role, METHOD_GET):

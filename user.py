@@ -1,8 +1,10 @@
+MESSAGE_KEY = 'message'
+
 def create_user():
-    return "Created User"
+    return {MESSAGE_KEY: 'Created User'}
 
 def update_user():
-    return None
+    return {MESSAGE_KEY: 'Updated User'}
 
 def get_user():
-    return None
+    return {MESSAGE_KEY: 'Retrieved User'}

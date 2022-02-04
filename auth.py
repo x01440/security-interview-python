@@ -25,6 +25,8 @@ def check_key(candidate_key: str):
         return False
 
 def check_role(candidate_role: str, operation: str):
+    if candidate_role == None:
+        return False
     if operation in AUTHORIZATION_CREDS[candidate_role]:
         return True
     else:
